@@ -1,0 +1,207 @@
+$primary-color:#5ECE7B;
+$bgColorTextShadow:0px 8px 16px 0px rgba(0,0,0,0.2);
+$bgElementHover: #e8e8e8;
+$marginSize:30px;
+
+
+.product-description-page-container {
+    display:flex;
+    position:relative;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap:wrap;
+    padding:15px;
+    gap:10px;
+    width:100%;
+    .first-column-container{
+       flex:1 1 5%;
+       max-width:100px;
+       height:50%;
+       max-height:700px;
+       overflow-y:auto;
+       img {
+           width:100%;
+           cursor:pointer;
+       }
+       .active-image {
+        border:1px solid black;
+    }
+    }
+    .second-column-container{
+        flex: 1 1 50%;
+        .selected-image {
+            max-width:600px;
+            height:auto;
+            max-height:700px;
+            width:100%;
+            object-fit:contain;
+            cursor:zoom-in;
+        }
+        .img-wide-view-container, .background-shadow {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            img {
+                object-fit: contain;
+                height:auto;
+            }
+            img[id="selected-wide-image"]{
+                cursor:zoom-out;
+                max-width:100%;
+                max-height:100%;
+            }
+        }
+        .background-shadow {
+            opacity: 0.9;
+            background-color: black;
+        }
+    }
+    .third-column-container{
+        flex: 1 1 30%;
+        font-size:20px;
+        display:flex;
+        justify-content:flex-start;
+        flex-direction:column;
+        height:auto;
+        padding:15px;
+        flex-wrap:wrap;
+        .content-container{
+            max-width:320px;    
+            .name-container{
+                margin-bottom:$marginSize;
+            }
+            .capacity-container {
+                width:100%;
+                margin-bottom:$marginSize;
+                flex-direction: column;
+                display: flex;
+                #capacity-buttons-container {
+                    display:flex;
+                    justify-content:space-between;
+                    a {
+                        padding:10px;
+                        font-size:14px;
+                        background-color:white;
+                        border:1px solid black;
+                        display:inline-block;
+                        text-decoration:none;
+                        color:black;
+                        border-radius:2px;
+                    }
+                    a:hover {
+                        background-color: #454545;
+                        border: 1px solid silver;
+                        color: white;
+                    }
+                    .active-button {
+                        background-color:black;
+                        color:white;
+                        border-radius:2px;
+                    }
+                }
+            }
+            .size-container{
+                width:100%;
+                margin-bottom:$marginSize;
+                flex-direction: column;
+                
+                #size-buttons-container {
+                    display:flex;
+                    justify-content:space-between;
+                    a {
+                        padding:10px;
+                        font-size:14px;
+                        background-color:white;
+                        border:1px solid black;
+                        display:inline-block;
+                        text-decoration:none;
+                        color:black;
+                        border-radius:2px;
+                    }
+                    a:hover {
+                        background-color: #454545;
+                        border: 1px solid silver;
+                        color: white;
+                    }
+                    .active-button {
+                        background-color:black;
+                        color:white;
+                        border-radius:2px;
+                    }
+                }
+            }
+           
+            .color-container {
+                width:100%;
+                margin-bottom: $marginSize;
+                flex-direction: column;
+                #color-container{
+                    display:flex;
+                    justify-content:space-between;
+                 
+
+                    a {
+                        text-decoration: none;
+                        border:1px solid silver;
+                        padding:20px;
+                        min-width:20px;
+                        min-height:20px;
+                        display:inline-block;
+                        opacity:0.3;
+                    }
+                    a:hover, .active-button {
+                        box-shadow: 0 0 5px black;
+                        opacity:1;
+                    }
+                }
+            }
+            .price-container{
+                width:100%;
+                margin-bottom:$marginSize;
+                div {padding-bottom:10px;}
+            }
+            .button-container {
+                
+                margin-bottom:$marginSize;
+                width:100%;
+                a {
+                    text-decoration: none;
+                    color: white;
+                    background-color:$primary-color;
+                    padding: 15px;
+                    display: inline-block;
+                    width: 100%;
+                    text-align: center;
+                    cursor: pointer;
+                    border: 2px solid $primary-color;
+                }
+                a[class="remove-from-cart-button"] {
+                    color:black;
+                    border: 2px solid #444;
+                    background-color: #EEE;
+                }
+                a:hover {
+                    background-color:rgb(2, 131, 2);
+                    cursor:pointer;
+                }
+                a[class="remove-from-cart-button"]:hover {
+                    background-color: #ff5050db;
+                }
+
+            }
+            .description-container{
+                font-size:13px;
+            }
+        }
+    }
+}
+
+ 
