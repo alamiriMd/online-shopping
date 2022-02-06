@@ -9,5 +9,3 @@ export default class Clothes extends React.Component {
           </div>
 </>)
 }}
-
- 

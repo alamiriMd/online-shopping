@@ -24,19 +24,18 @@ export default class App extends React.Component {
     }
     render() {
         return (<>            
-                    <Navbar rerender={this.rerender } />
-                    <div className="main-content-container">
-                        <Routes>
-                            <Route path='/' element={<Home rerender={this.rerender } />} />
-                            <Route path="/product/:id" element={   <ProductDescriptionPage rerender={this.rerender} />} />         
-                            <Route path="/clothes" element={   <Clothes rerender={this.rerender} />} />
-                            <Route path="/tech" element={   <Tech rerender={this.rerender} />} />
-                            <Route path='/cart' element={<CartPage rerender={this.rerender} />} />
-                            <Route path='/check-out' element={<CheckoutPage rerender={this.rerender} />} />
-                            <Route path='*' element={   <NotFoundPage rerender={this.rerender} />} />
-                        </Routes>
-                    </div>
-               
+                <Navbar rerender={this.rerender } />
+                <div className="main-content-container">
+                    <Routes>
+                        <Route path='/' element={<Home rerender={this.rerender } />} />
+                        <Route path="/product/:id" element={   <ProductDescriptionPage rerender={this.rerender} />} />         
+                        <Route path="/clothes" element={   <Clothes rerender={this.rerender} />} />
+                        <Route path="/tech" element={   <Tech rerender={this.rerender} />} />
+                        <Route path='/cart' element={<CartPage rerender={this.rerender}   />} />
+                        <Route path='/check-out' element={<CheckoutPage rerender={this.rerender}  />} />
+                        <Route path='*' element={   <NotFoundPage rerender={this.rerender}  />} />
+                    </Routes>
+                </div>
         </>);
     }
 }

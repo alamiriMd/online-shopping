@@ -1,136 +1,75 @@
 import React from "react";
 import {Query} from '@apollo/client/react/components';
-import {gql} from '@apollo/client';
+import { PRODUCTS_QUERY } from "./queries";
 import {Link} from 'react-router-dom';
-import { getItemsInCart,updateCapacity, updateColor,getActiveColorButton, updateSize, updateProductCountInCart, getActiveCapacityButton, getActiveSizeButton, getItemsIdsInCart, getCurrencyId } from './localStorage';
+import { getItemsInCart,updateCapacity, updateColor,getActiveColorButton, updateSize, updateProductCountInCart, getActiveCapacityButton, getActiveSizeButton, getItemsIdsInCart, getCurrencyId, getIndexesOfProductInCart, getCurrentIndex } from './localStorage';
  
- 
-const PRODUCTS_QUERY = gql`
-    query ProductDetail{
-        categories{
-            products{            
-            name
-            id
-            brand
-            gallery
-            category
-            prices{
-                amount
-                currency {
-                    symbol
-                    label
-                }
-            }
-            attributes {
-                name
-                type
-                items {
-                    value
-                    id
-                    displayValue
-                }
-            }
-            }
-    }
-    }`;
-
 export default class Products extends React.Component {
     constructor(props){
         super(props);
         this.state = {
             currencyId: getCurrencyId(),
         }
+    } 
+    changeProductItemsInCart = (productId, operation, index) =>{
+        let Index = getCurrentIndex();
+        if(index){Index = index;}
+        updateProductCountInCart(productId, operation, Index);   
+        this.props.rerender();
     }
-    changeProductItemsInCart = (productId, key, operation) =>{
-        const itemsCountContainer = document.querySelectorAll( ".count-display-container-" + key + "-"+ productId );
-        for(let i=0; i < itemsCountContainer.length; i++){
-            let count = parseInt(itemsCountContainer[i].innerText);
-            if(operation === -1){
-                if(count > 0 ){
-                    itemsCountContainer[i].innerText = `${count - 1} `;
-                    updateProductCountInCart(productId, -1);
-                }
-            }else {
-                itemsCountContainer[i].innerText = `${count + 1} `;
-                updateProductCountInCart(productId, 1);   
-            }
-            this.setState({count: (this.state.count + 1)});
-        }
-      this.props.rerender();
+    ChangeSize (productId, buttonId, index=null){
+        let Index = getCurrentIndex();
+        if(index){Index = index;}
+        updateSize({productId:productId, buttonId:parseInt(buttonId), index:Index});
+        this.props.rerender();
     }
-    ChangeSize (productId, buttonId){
-        const container = document.querySelectorAll(".size-buttons-container-" + productId);
-        for(let i=0; i < container.length; i++){
-            const buttons = container[i].querySelectorAll(".size-buttons");
-            for(let i=0; i < buttons.length; i++){
-                buttons[i].classList.remove("active-button");   
-                if(parseInt(buttons[i].id) === buttonId){
-                    buttons[i].classList.add("active-button");
-                    updateSize({productId:productId, buttonId:parseInt(buttonId)});
-                  
-                }
-            }
-        }
-    }
-    changeImageSlider = (productId, key, direction)=>{
-        const container = document.querySelectorAll("#product-" + productId +"-"+ key);
+    changeImageSlider = (productId, key, direction, productIndex)=>{
+        let PRODUCT_INDEX = getCurrentIndex();
+        if(productIndex){PRODUCT_INDEX = productIndex;}
+        const container = document.querySelectorAll("#product-" + productId +"-"+ key+"-"+ PRODUCT_INDEX);
         var index = 1;
         for(let i =0; i < container.length; i++){
             const images = container[i].querySelectorAll(".images");
             for(let i = 0; i < images.length; i++){
-                images[i].style.display = 'none';
-                if(images[i].className === 'images active-image'){
-                    index = parseInt(images[i].id)
+                images[i].classList.add("hidden");
+                images[i].classList.remove("show");
+                if(images[i].className.includes('active-image')){
+                    index = parseInt(images[i].id);
                 }
                 images[index].classList.remove("active-image");
             }
             index += direction;
             if(index >= images.length){index = 0;}
             else if(index < 0){index = images.length - 1;}
-            images[index].style.display = 'block';
+            images[index].classList.add('show');
             images[index].classList.add("active-image");
         }
     }
-    ChangeColor (productId, buttonId){
-        const container = document.querySelectorAll(".color-buttons-container-" + productId);
-        for(let i=0; i < container.length; i++){
-            const buttons = container[i].querySelectorAll(".color-buttons");
-            for(let i=0; i < buttons.length; i++){
-                buttons[i].classList.remove("active-button");
-                if(parseInt(buttons[i].id) === buttonId){
-                    buttons[i].classList.add("active-button");
-                    updateColor({productId:productId, buttonId:parseInt(buttonId)});
-                }
-            }
-        }
+    ChangeColor (productId, buttonId, index){
+        let Index = getCurrentIndex();
+        if(index){Index = index;}
+        updateColor({productId:productId, buttonId:parseInt(buttonId), index:Index});
+        this.props.rerender();
     }
     handleDisplay = (attributes, buttonsType)=>{
         const attr = JSON.parse(attributes);
-        var val = "none"; 
-        attr.map(item => {
+        let val = "hidden"; 
+        attr.forEach(item => {
             if(item.name === buttonsType){val =  "flex";}
         });
         return val; 
     }
-    ChangeCapacity (productId, buttonId){
-        const container = document.querySelectorAll(".capacity-buttons-container-" + productId);
-        for(let i=0; i < container.length; i++){
-            const buttons = container[i].querySelectorAll(".capacity-buttons");
-            for(let i=0; i < buttons.length; i++){
-                buttons[i].classList.remove("active-button");   
-                if(parseInt(buttons[i].id) === buttonId){
-                    buttons[i].classList.add("active-button");
-                    updateCapacity({productId:productId, buttonId:parseInt(buttonId)});
-                }
-            }
-        }
-    }
-    callRerender = ()=>{
-        this.setState({currencyId: getCurrencyId()});
+    ChangeCapacity (productId, buttonId, index){
+        let Index = getCurrentIndex();
+        if(index){Index = index;}
+        updateCapacity({productId:productId, buttonId:parseInt(buttonId), index:Index});
         this.props.rerender();
     }
-    render(){ 
-       
+    updateIndex = (index)=> {
+        localStorage.setItem("index", index);
+        if(document.location.pathname.includes('/product/')){this.props.rerender();}
+    }
+    render(){
     return (<>
              <div className="products-container">
                 <Query query={PRODUCTS_QUERY} >
@@ -141,78 +80,86 @@ export default class Products extends React.Component {
                             {data.categories[0].products.map((product, key) =>{
                                 // in if statement (product.attributes.length > 0)can be removed if the all data contains attributes.
                                 // I put this condition just because I have some data contains no attributes and gives me an error. 
-                                if(getItemsIdsInCart().includes(product.id)) return( 
-                                /// beggining ................////
-                                    <div className="products" key={key} id={`product-${product.id}-${key}`}>
-                                        <div className="first-column-container" id="first-column-container">
-                                            <div className='name-container'>
-                                                <Link onClick={()=> this.callRerender()} to={`/product/${product.id }`}><strong>{product.name} </strong></Link>
-                                            </div>
-                                            <div className='brand-container'> 
-                                                <span>{product.brand }</span>
-                                            </div>
-
-                                            <div className='price-container'> 
-                                                <strong>{product.prices[getCurrencyId()].currency.symbol }{product.prices[getCurrencyId()].amount * getItemsInCart(`${product.id}`)}</strong>
-                                            </div>
-                                            <div id='size-buttons-container' className={`size-buttons-container-${product.id}`} 
-                                            style={{display: (product.attributes.length > 0)?this.handleDisplay(JSON.stringify(product.attributes ), 'Size'):"none" }} >
-                                                 
-                                                { product.attributes.map((attr, AttrKey)=> {
-                                                    if(attr.name ==='Size')
-                                                    return (attr.items.map((item, key)=> {return (
-                                                        <a  id={key } href="#" 
-                                                            onClick={ () => this.ChangeSize(product.id, key) } 
-                                                            className={getActiveSizeButton(product.id, key)} 
-                                                            title={item.displayValue} key={item.id }>{item.displayValue}</a>
-                                                            )}))
-                                                })}
-                                            </div>
-                                            <div id='capacity-buttons-container' className={`capacity-buttons-container-${product.id}`} style={{display: (product.attributes.length > 0)?this.handleDisplay(JSON.stringify(product.attributes ), 'Capacity'):"none" }}>
-                                                { product.attributes.map((attr, AttrKey)=> {
-                                                    if(attr.name ==='Capacity')
-                                                    return (attr.items.map((item, key)=> {return (
-                                                        <a  id={key } href="#" 
-                                                        onClick={ () => this.ChangeCapacity(product.id, key) } 
-                                                        className={getActiveCapacityButton(product.id, key)} 
-                                                        title={item.displayValue} key={item.id }>{item.displayValue}</a>
-                                                    )}))
-                                                })}
-                                            </div>
-                                            <div id='color-buttons-container' className={`color-buttons-container-${product.id}`}  style={{display: (product.attributes.length > 0)?this.handleDisplay(JSON.stringify(product.attributes ), 'Color'):"none" }}>
-                                                { product.attributes.map((attr, AttrKey)=> {
-                                                    if(attr.name ==='Color')
-                                                    return (attr.items.map((item, key)=> {return (
-                                                        <a  id={key } href="#" style={{backgroundColor:item.value}}
-                                                        onClick={ () => this.ChangeColor(product.id, key) } 
-                                                        className={getActiveColorButton(product.id, key)} 
-                                                        title={item.displayValue} key={item.id }></a>
-                                                    )}))
-                                                })}
-                                            </div>
-                                        </div>
-                                        <div className="second-column-container">
-                                            <div className='count-buttons-container'>
-                                                <a href='#'onClick={()=>this.changeProductItemsInCart(product.id,key, 1)} >+</a>
-                                                    <span className={`count-display-container-${key}-${product.id}`}>{getItemsInCart(product.id, key)} </span>
-                                                <a href='#'onClick={()=>this.changeProductItemsInCart(product.id, key, -1)}  >-</a>
-                                            </div>
-                                        </div>
-                                        <div className="third-column-container">
-                                            <div className="buttons-slider-container" id="buttons-slider-container"  style={{ display:(!this.props.showSlider || (product.gallery.length === 1) )?"none":"block"}}>
-                                                <a href="#" className="buttons" id={`left-button-id`} onClick={()=>this.changeImageSlider(product.id, key, 1)}><span></span> </a>
-                                                <a href="#" className="buttons" id={`right-button-id`} onClick={()=>this.changeImageSlider(product.id, key, -1)}><span></span></a>
-                                            </div>
-                                            <div className='images-container' id="images-container">
-                                                {product.gallery.map((item, key) => {
-                                                    return <img className={(key===0)?"images active-image":"images"} 
-                                                    key={key} id={key} src={item}  alt='image' style={{display:(key != 0)?"none":"block"}} />
-                                                })}
-                                            </div>
-                                        </div>
-                                    </div>
-                            /// end ................////
-                                            )})}
+                                if(getItemsIdsInCart().includes(product.id)){
+                                    let indexes = getIndexesOfProductInCart(product.id);
+                                    return  indexes.map((index, key)=>{
+                                            /// beggining ................////
+                                                return ( 
+                                                <div className="products" key={key} id={`product-${product.id}-${key}-${index}`}>
+                                                    <div className="first-column-container" id="first-column-container">
+                                                        <div className='name-container'>
+                                                            <Link onClick={()=> this.updateIndex(index)} to={`/product/${product.id}#index=${index}`}><strong>{product.name} </strong></Link>
+                                                        </div>
+                                                        <div className='brand-container'>
+                                                            <span>{product.brand }</span>
+                                                        </div>
+                                                        <div className='price-container'> 
+                                                            <strong>{product.prices[getCurrencyId()].currency.symbol }{product.prices[getCurrencyId()].amount.toFixed(2)}</strong>
+                                                        </div>
+                                                        <div className={`size-buttons-container-${product.id}-${index} buttons ${(product.attributes.length > 0)?this.handleDisplay(JSON.stringify(product.attributes ), 'Size'):"hidden" }`} >
+                                                            { product.attributes.map((attr, AttrKey)=> {
+                                                                if(attr.name ==='Size'){
+                                                                return (attr.items.map((item, key)=> {return (
+                                                                    <button  id={key } 
+                                                                        onClick={ () => {if(this.props.attributes)this.ChangeSize(product.id, key, index) }} 
+                                                                        className={getActiveSizeButton(product.id, key, index)} 
+                                                                        title={item.displayValue} key={item.id }>{item.value}</button>
+                                                                        )}))}
+                                                                return null;
+                                                            })}
+                                                        </div>
+                                                        <div className={`capacity-buttons-container-${product.id}-${index} buttons ${(product.attributes.length > 0)?this.handleDisplay(JSON.stringify(product.attributes ), 'Capacity'):"hidden" }`}>
+                                                            { product.attributes.map((attr, AttrKey)=> {
+                                                                if(attr.name ==='Capacity'){
+                                                                return (attr.items.map((item, key)=> {return (
+                                                                    <button  id={key } 
+                                                                    onClick={ () => {if(this.props.attributes)this.ChangeCapacity(product.id, key, index)} } 
+                                                                    className={getActiveCapacityButton(product.id, key, index)} 
+                                                                    title={item.displayValue} key={item.id }>{item.displayValue}</button>
+                                                                )}))}
+                                                                return null;
+                                                            })}
+                                                        </div>
+                                                        <div className={`color-buttons-container-${product.id}-${index} buttons ${(product.attributes.length > 0)?this.handleDisplay(JSON.stringify(product.attributes ), 'Color'):"hidden" }`}>
+                                                            { product.attributes.map((attr, AttrKey)=> {
+                                                                if(attr.name ==='Color'){
+                                                                return (attr.items.map((item, key)=> {return (
+                                                                    <button  id={key }  style={{backgroundColor:item.value}}
+                                                                    onClick={ () => {if(this.props.attributes)this.ChangeColor(product.id, key, index) }} 
+                                                                    className={getActiveColorButton(product.id, key, index)} 
+                                                                    title={item.displayValue} key={item.id }></button>
+                                                                )}))}
+                                                                return null;
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                    <div className="second-column-container">
+                                                        <div className='count-buttons-container'>
+                                                            <button onClick={()=>this.changeProductItemsInCart(product.id, 1, index)} >+</button>
+                                                                <span className={`count-display-container-${key}-${product.id}-${index}`}>{getItemsInCart(product.id, index)} </span>
+                                                            <button onClick={()=>this.changeProductItemsInCart(product.id, -1, index)}  >-</button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="third-column-container">
+                                                        <div id="buttons-slider-container" className={`buttons-slider-container ${(!this.props.showSlider || (product.gallery.length === 1) )?"hidden":"show"}`}>
+                                                            <button className="buttons" id={`left-button-id`} onClick={()=> this.changeImageSlider(product.id, key, 1, index)}><span></span> </button>
+                                                            <button className="buttons" id={`right-button-id`} onClick={()=> this.changeImageSlider(product.id, key, -1, index)}><span></span></button>
+                                                        </div>
+                                                        <div className='images-container' id="images-container">
+                                                            {product.gallery.map((item, key) => {
+                                                                return <img 
+                                                                key={key} id={key} src={item}  alt='' className={`images ${(key === 0)?"active-image show":"hidden"}`} />
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                );
+                                            /// end ................////
+                                        }
+                                    )
+                                }
+                                return null;
+                                })}
                         </>)
                     }}
                 </Query>

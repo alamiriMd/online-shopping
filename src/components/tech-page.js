@@ -10,5 +10,3 @@ export default class Tech extends React.Component {
           </div>
 </>)
 }}
-
- 

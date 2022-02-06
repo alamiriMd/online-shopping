@@ -22,8 +22,7 @@ $bgElementHover: #e8e8e8;
         .products {
             padding:10px;
             width: 100%;
-            border: 1px solid silver;
-            border-radius: 5px;
+            border-top: 1px groove silver;
             display: flex;
             box-shadow: none;
             gap: 10px;
@@ -33,7 +32,7 @@ $bgElementHover: #e8e8e8;
                     min-width:140px;
                     position:absolute;
                     z-index:1;
-                    a{
+                    button {
                         position: absolute;
                         margin-top: 50px;
                         z-index: 1;
@@ -44,6 +43,8 @@ $bgElementHover: #e8e8e8;
                         padding: 10px 1px 10px 5px;
                         transition: background-color 1s;
                         border-radius: 3px;
+                        background-color: inherit;
+                        border: none;
                         span {
                             display: inline-block;
                             border-left: 3px solid white;
@@ -52,15 +53,15 @@ $bgElementHover: #e8e8e8;
                             margin-top: 4px;
                         }
                     }
-                    a:hover {
+                    button:hover {
                         background-color: black;
                     }
-                    a:first-child {
+                    button:first-child {
                         span {
                             transform: rotate(43deg);
                         }
                     }
-                    a:last-child{
+                    button:last-child{
                         span {
                             transform: rotate(226deg);
                         }
@@ -86,6 +87,19 @@ $bgElementHover: #e8e8e8;
             .second-column-container {
                 .count-buttons-container{
                     min-height: 140px;
+                    button {
+                        text-decoration: none;
+                        background-color: #fff;
+                        font-size: 13px;
+                        border: 1px solid black;
+                        padding: px;
+                        padding: 1px;
+                        text-align: center;
+                        color: black;
+                        width: 100%;
+                        max-width: 22px;
+                        cursor:pointer;
+                    }
                 }
             }
             .first-column-container{
@@ -102,31 +116,32 @@ $bgElementHover: #e8e8e8;
                 .price-container {
                     padding:0;
                 }
-                #size-buttons-container, #capacity-buttons-container, #color-buttons-container {
+                .buttons {
                     width:100%;
-                    display:flex;
                     justify-content: flex-start;
                     gap:5px;
-                    a, .active-button {
+                    button, .active-button {
                         text-decoration: none;
-                        padding: 5px;
+                        padding: 8px 10px;
                         display: block;
                         color: black;
                         border: 1px solid black;
                         font-size: 10px;
                         text-align: center;
+                        background-color: white;
+                        cursor:pointer;
                     }
                     .active-button  {
                         color:white;
                         background-color: black;
                     }
-                    a[class='color-buttons'] {
+                    button[class='color-buttons'] {
                         min-width: 40px;
                         min-height:40px;
                         border: none;
                         opacity: 0.3;
                     }
-                    a[class='color-buttons active-button']{
+                    button[class='color-buttons active-button']{
                         box-shadow: 0 0 10px black;
                         min-width: 40px;
                         min-height:40px;

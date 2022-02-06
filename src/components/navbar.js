@@ -4,13 +4,7 @@ import './styling/navBar.scss';
 import logo from './images/logo.png';
 import MinCart  from './mincart';
 import SVG from './svg-store';
-import { getCurrencyId, getTotalItemsInCart, getActiveItemsInCart, getDarkMode } from './localStorage';
-
-const style = {
-    backgroundImage: `url(${logo})`,
-    backgroundRepeat:"no-repeat",
-    backgroundSize:"contain"
-}
+import { getCurrencyId, getTotalItemsInCart, getDarkMode, updateActivePage } from './localStorage';
 
 export default class Navbar extends React.Component {
     constructor(props){
@@ -18,7 +12,7 @@ export default class Navbar extends React.Component {
         this.state = {
             currencyId: getCurrencyId(),
             currentCurrencySymbolList: ['$', '£', 'A$', '¥', '₽'],
-            activePage:document.location.pathname,
+            activePage:this.props.activePage,
         }
     }
     changeCurrency = (currencyId) => {
@@ -26,36 +20,13 @@ export default class Navbar extends React.Component {
         localStorage.setItem("currencyId", currencyId);
         this.props.rerender();
       }
-      updateActivePage = (currentPage)=>{
-        const container = document.getElementById("navigation-container");
-        const links = container.querySelectorAll("a");
-        for(let i = 0; i< links.length; i++) {
-            links[i].classList.remove("active");
-            if(links[i].id === currentPage){
-                links[i].classList.add("active");}
-        }
-    }
-    componentDidMount = ()=>{
-        this.updateActivePage(document.location.pathname);
-        const body = document.querySelector("body");
-        body.classList.remove("dark");
-        body.classList.remove("light");
-        body.classList.add(getDarkMode());
-        const scroller = document.querySelector(".scroller-container");
-        function onScroll(){
-        if(document.body.scrollTop > 30 || document.documentElement.scrollTop > 30){
-          scroller.style.display = "flex";
-        }else{scroller.style.display = "none";}
-      }
-      document.onscroll = ()=> onScroll();
-    }
     handleScrollAction = ()=> {
         if(document.body.scrollTop > 30 || document.documentElement.scrollTop > 30){
           document.body.scrollTop = 0; //for safari
           document.documentElement.scrollTop = 0; //for IE, Firefox, chrome, Opera, 
         }
       }
-      handleDarkMode = ()=>{
+    handleDarkMode = ()=>{
           const container = document.querySelector(".darkMode-container");
           const button = container.querySelector("span");
           const body = document.querySelector("body");
@@ -72,47 +43,66 @@ export default class Navbar extends React.Component {
             button.classList.remove("light");
             button.classList.add("dark");
             localStorage.setItem("darkMode", "light");
-
         }
-
       }
-    render(){
+      componentDidMount = ()=>{
+        const body = document.querySelector("body");
+        body.classList.remove("dark");
+        body.classList.remove("light");
+        body.classList.add(getDarkMode());
+        const scroller = document.querySelector(".scroller-container");
+        function onScroll(){
+        if(document.body.scrollTop > 30 || document.documentElement.scrollTop > 30){
+          scroller.classList.add("flex");
+          scroller.classList.remove("hidden");
+        }else{
+          scroller.classList.add("hidden");
+          scroller.classList.remove("flex");
+        }
+      }
+      document.onscroll = ()=> onScroll();
+      updateActivePage();
+    }
+    render(){ 
         return (
         <div className="navbar-container">
-            <div className="navigation-container" id="navigation-container">
-                <Link id="/clothes" className="links" onClick={()=> this.updateActivePage("/clothes")}  to="/clothes" exact="true" >CLOTHES</Link>
-                <Link id="/tech" className="links" onClick={()=> this.updateActivePage("/tech")} to="/tech"  >TECH</Link>
+            <div className="navigation-container" id="navbar-links-container">
+                <Link id="/" className='links' to="/" onClick={()=>updateActivePage('/')} exact="true" >ALL</Link>
+                <Link id="/clothes" className='links' onClick={()=>updateActivePage('/clothes')} to="/clothes" >CLOTHES</Link>
+                <Link id="/tech" className='links' onClick={()=>updateActivePage('/tech')} to="/tech"  >TECH</Link>
             </div>
-            <div className='scroller-container' onClick={()=>this.handleScrollAction()} style={{display:"none"}}>
+            <div className='scroller-container hidden' id="scroller-container" onClick={()=>this.handleScrollAction()} >
                 <SVG bgColor="silver" name="angle-up" />
             </div>
             <div onClick={()=> this.handleDarkMode()} className='darkMode-container' title='Toggle between light/dark mode'><span className='light'></span></div>
             <div className="logo-container" >
-                <Link id="/" className="links" to="/" onClick={()=> this.updateActivePage("/")} >
-                    <div style={style}></div>
-                </Link>
+                    <div style={{backgroundImage:`url(${logo})`}}></div>
             </div>
             <div className="actions-container">
-                <div className="left"> 
-                    <Link to='/cart'>
+                <div className="left">
+                <div className='shadow-bg-container'></div>
+                <div className='minicart-content-container'>
                         <span className='svg-container'>
                             <SVG bgColor={(getTotalItemsInCart() > 0)?"black":"silver"} />
                         </span>
-                        <span id="product-counts-in-cart-container" style={(getTotalItemsInCart()> 0)?{display:"inline"}:{display:"none"}}>{getTotalItemsInCart("")}</span>
-                    </Link>
+                        <span id="product-counts-in-cart-container" className={(getTotalItemsInCart()> 0)?"inline":"hidden"}>{getTotalItemsInCart("")}</span>
+                    </div>
                     <div className="mincart-container">
-                       <MinCart rerender={this.props.rerender} currentCurrencySymbolList={this.state.currentCurrencySymbolList} showSlider={false} />
+                       <MinCart activePage={this.activePage } rerender={this.props.rerender} currentCurrencySymbolList={this.state.currentCurrencySymbolList} showSlider={false} />
                     </div>
                 </div>
                 <div className="right">
                     <span>{this.state.currentCurrencySymbolList[this.state.currencyId]} </span> 
-                    <i className="fa fa-angle-down"></i>
+                    <div className='arrow-container'>
+                        <SVG name='angleDown' bgColor='black' />
+                        <SVG name='angleUp' bgColor='black' />
+                    </div>
                     <div className="dropdown-content-container">
-                        <a href="#" onClick={()=> this.changeCurrency(0)} value="0">USD $</a>
-                        <a href="#" onClick={()=> this.changeCurrency(1)} value="1">GBP £</a>
-                        <a href="#" onClick={()=> this.changeCurrency(2)} value="2">AUD A$</a>
-                        <a href="#" onClick={()=> this.changeCurrency(3)} value="3">JPY ¥</a>
-                        <a href="#" onClick={()=> this.changeCurrency(4)} value="4">RUB ₽</a>
+                        <button onClick={()=> this.changeCurrency(0)} id="0">USD $</button>
+                        <button onClick={()=> this.changeCurrency(1)} id="1">GBP £</button>
+                        <button onClick={()=> this.changeCurrency(2)} id="2">AUD A$</button>
+                        <button onClick={()=> this.changeCurrency(3)} id="3">JPY ¥</button>
+                        <button onClick={()=> this.changeCurrency(4)} id="4">RUB ₽</button>
                     </div>                  
                 </div>
             </div>
